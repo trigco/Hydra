@@ -100,13 +100,13 @@ jobs:
           PKG_CONFIG_PATH: ${{ github.workspace }}/native/openssl-install/lib/pkgconfig
           PKG_CONFIG_LIBDIR: ${{ github.workspace }}/native/openssl-install/lib/pkgconfig
           PKG_CONFIG_SYSROOT_DIR: ${{ github.workspace }}/native/openssl-install
-                    # Picoquic's CMake subproject finds OpenSSL via FindOpenSSL, which
-                              # does NOT consult pkg-config — it needs OPENSSL_ROOT_DIR pointing
-                                        # at the OpenSSL built in the previous step, otherwise configure
-                                                  # fails with "Could NOT find OpenSSL (missing:
-                                                            # OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR)".
-                                                                      OPENSSL_ROOT_DIR: ${{ github.workspace }}/native/openssl-install
-                                                                                CMAKE_PREFIX_PATH: ${{ github.workspace }}/native/openssl-install
+          # Picoquic's CMake subproject finds OpenSSL via FindOpenSSL, which
+          # does NOT consult pkg-config — it needs OPENSSL_ROOT_DIR pointing
+          # at the OpenSSL built in the previous step, otherwise configure
+          # fails with "Could NOT find OpenSSL (missing:
+          # OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR)".
+          OPENSSL_ROOT_DIR: ${{ github.workspace }}/native/openssl-install
+          CMAKE_PREFIX_PATH: ${{ github.workspace }}/native/openssl-install
         run: |
           set -euxo pipefail
           cd native/slipstream

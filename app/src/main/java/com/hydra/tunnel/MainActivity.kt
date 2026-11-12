@@ -263,12 +263,25 @@ private fun MetricCard(label: String, value: String, modifier: Modifier = Modifi
 
 @Composable
 private fun SettingsScreen() {
+    val context = LocalContext.current
+    val connectionState by ConnectionCoordinator.state.collectAsState()
+    val vpnPermissionGranted = VpnService.prepare(context) == null
     var autoConnect by remember { mutableStateOf(false) }
     var diagnostics by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("APP PREFERENCES", color = HydraMuted, fontSize = 11.sp, letterSpacing = 1.2.sp)
         PreferenceRow("Auto-connect", "Connect when the selected profile is available", autoConnect) { autoConnect = it }
         PreferenceRow("Verbose diagnostics", "Enable additional troubleshooting logs", diagnostics) { diagnostics = it }
+        Card(colors = CardDefaults.cardColors(containerColor = HydraSurface)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("DIAGNOSTICS", fontWeight = FontWeight.Bold)
+                Text("VPN permission: ${if (vpnPermissionGranted) "Granted" else "Not granted"}", color = HydraMuted, fontSize = 12.sp)
+                Text("Connection state: $connectionState", color = HydraMuted, fontSize = 12.sp)
+                Text("Transport engine: Not integrated", color = HydraMuted, fontSize = 12.sp)
+                Text("TUN packet bridge: Not integrated", color = HydraMuted, fontSize = 12.sp)
+                Text("Live traffic counters: Not available", color = HydraMuted, fontSize = 12.sp)
+            }
+        }
         Card(colors = CardDefaults.cardColors(containerColor = HydraSurface)) {
             Column(Modifier.padding(16.dp)) {
                 Text("Hydra Tunnel", fontWeight = FontWeight.Bold)

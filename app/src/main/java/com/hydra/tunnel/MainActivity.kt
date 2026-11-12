@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,6 +70,8 @@ private enum class AppTab(val label: String) {
 
 @Composable
 private fun HydraApp() {
+    val context = LocalContext.current
+    val profileStore = remember(context) { ProfileStore(context) }
     var selectedTab by remember { mutableStateOf(AppTab.HOME) }
     MaterialTheme(
         colorScheme = darkColorScheme(
@@ -109,7 +112,7 @@ private fun HydraApp() {
                 Spacer(Modifier.height(24.dp))
                 when (selectedTab) {
                     AppTab.HOME -> HomeScreen(onOpenConfigs = { selectedTab = AppTab.CONFIGS })
-                    AppTab.CONFIGS -> ConfigsScreen()
+                    AppTab.CONFIGS -> ProfileManagerScreen(profileStore)
                     AppTab.SETTINGS -> SettingsScreen()
                 }
             }

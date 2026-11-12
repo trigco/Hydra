@@ -12,13 +12,13 @@
 - [x] Set application ID and display name (Hydra Tunnel)
 - [x] Build initial Material 3 navigation: Home, Configs, Settings
 - [ ] Add dark and AMOLED appearance options
-- [ ] Add ViewModel + StateFlow UI state
+- [x] Add connection StateFlow coordinator (profile screen state remains local Compose state)
 - [x] Add profile model, validation, and local persistence
 - [x] Add JSON import/export with strict size, version, and profile validation
 - [ ] Add unit and UI tests for profile management
 
 ## Phase 2 — Android VPN foundation
-- [ ] Implement Android VpnService permission and foreground lifecycle
+- [x] Register Android VpnService lifecycle boundary (TUN creation intentionally disabled until transport is ready)
 - [ ] Define TUN packet ownership and forwarding interfaces
 - [ ] Add deterministic start, stop, cancellation, and cleanup state machine
 - [ ] Prevent routing loops for app-owned sockets
@@ -33,7 +33,7 @@
 
 ## Phase 4 — Diagnostics and quality
 - [ ] Add structured diagnostics with secrets redacted
-- [ ] Add clear connection-state and error models
+- [x] Add explicit connection-state and traffic snapshot models
 - [ ] Profile CPU, RAM, battery, and thermal impact
 - [ ] Test on low-end and current Android devices
 - [ ] Test airplane mode, network changes, IPv6, and process death

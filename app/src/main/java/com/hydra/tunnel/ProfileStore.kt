@@ -34,6 +34,12 @@ class ProfileStore(context: Context) {
         }
     }
 
+    fun selectedProfileId(): String? = preferences.getString(KEY_SELECTED_PROFILE, null)
+
+    fun selectProfile(id: String?) {
+        preferences.edit().putString(KEY_SELECTED_PROFILE, id).apply()
+    }
+
     fun encodeExport(profiles: List<HydraProfile>): String {
         val root = JSONObject()
             .put("format", FORMAT_NAME)
@@ -66,6 +72,7 @@ class ProfileStore(context: Context) {
         const val MAX_PROFILES = 50
         const val MAX_IMPORT_BYTES = 256 * 1024
         private const val KEY_PROFILES = "profiles_json"
+        private const val KEY_SELECTED_PROFILE = "selected_profile_id"
         private const val FORMAT_NAME = "hydra-profile"
         private const val FORMAT_VERSION = 1
     }

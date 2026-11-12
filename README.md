@@ -1,51 +1,50 @@
 # Hydra Tunnel
 
-Hydra Tunnel is an open-source Android VPN client project built around the Slipstream Rust transport.
+Hydra Tunnel is an open-source Android VPN client project focused on a clean user experience, user-managed profiles, and a modular application architecture.
 
-> **Status: early development.** The repository currently contains project documentation and architecture planning. A working VPN connection, DNS racing, and MTU controls have not been implemented yet.
+> **Status: early development.** The repository currently contains an Android UI/build scaffold and project documentation. A working VPN connection, packet-forwarding data plane, DNS subsystem, and MTU application have not been implemented.
 
 ## Project goals
 
-- A clean, responsive Android interface built with Kotlin and Jetpack Compose.
-- Integrate the upstream Slipstream Rust client through a carefully defined native boundary.
-- Provide a correct Android `VpnService` and TUN packet-forwarding architecture.
-- Offer editable, importable, and exportable local configurations.
-- Provide configurable DNS resolvers, bounded parallel DNS racing, caching, and failover.
-- Expose safe MTU controls and validate settings against the actual tunnel path.
-- Keep CPU, memory, battery, and thermal overhead low, including on lower-end devices.
+- A responsive Android interface built with Kotlin and Jetpack Compose.
+- A proper Android VpnService lifecycle and explicit packet-forwarding architecture.
+- Editable, importable, exportable, and locally stored user profiles.
+- Clear connection state, diagnostics, and error reporting.
+- Low CPU, memory, battery, and thermal overhead, verified through device profiling.
 
 ## Planned app navigation
 
-- **Home** — connection status, traffic counters, connect/disconnect.
-- **Configs** — create, edit, duplicate, import, export, select, and delete configurations.
-- **Settings** — DNS, MTU, diagnostics, appearance, and app preferences.
+- **Home** — connection state, traffic counters, and connection controls.
+- **Configs** — create, edit, duplicate, import, export, select, and delete local profiles.
+- **Settings** — appearance, diagnostics, and app preferences.
 
-There will be no built-in public server directory. Users configure their own endpoints.
+There will be no built-in public server directory. Users manage their own profiles and endpoints.
 
 ## Technology direction
 
 | Layer | Planned technology |
 |---|---|
 | Android app | Kotlin, Jetpack Compose, Material 3 |
-| VPN lifecycle | Android `VpnService` |
-| Tunnel engine | Slipstream Rust (upstream integration) |
-| Native bridge | JNI / Rust FFI, selected after integration review |
-| Async DNS coordination | Bounded asynchronous tasks; avoid unbounded thread creation |
-| Local preferences | DataStore; configuration persistence design to be finalized |
-| Testing | Kotlin tests, Rust tests, Android device profiling |
+| VPN lifecycle | Android VpnService |
+| Packet handling | A separately reviewed and tested packet-forwarding component |
+| Native integration | Android NDK; exact interface to be selected after compatibility review |
+| Local preferences | DataStore / local persistence, implementation pending |
+| Testing | Kotlin tests, native tests where applicable, Android device profiling |
+
+## Upstream evaluation
+
+[EndPositive/slipstream](https://github.com/EndPositive/slipstream) is the preferred candidate for source and compatibility evaluation. It is a C/C++ project with a Meson/Ninja build and PicoQUIC submodule. Android NDK compatibility has not been established, and no upstream source or binary has been integrated.
+
+The archived Rust rewrite and other candidates are documented in [docs/UPSTREAM.md](docs/UPSTREAM.md). The Android VPN foundation remains transport-independent.
 
 ## Development status
 
 See [ROADMAP](docs/ROADMAP.md) and [ARCHITECTURE](docs/ARCHITECTURE.md).
 
-## Upstream project
-
-Hydra Tunnel builds on the work in [Mygod/slipstream-rust](https://github.com/Mygod/slipstream-rust). Upstream code and dependencies retain their original licenses and notices. No upstream source has been copied into this repository yet.
-
 ## Open source and licensing
 
-Hydra-authored project code is licensed under the GNU General Public License v3.0; see [COPYING](COPYING). Slipstream Rust and third-party dependencies retain their own licenses and notices. The upstream Slipstream Rust repository is licensed under Apache-2.0; review its terms and preserve required notices before redistributing upstream code or binaries.
+Hydra-authored project code is licensed under the GNU General Public License v3.0; see [COPYING](COPYING). Third-party code and dependencies retain their own licenses and notices. Review all applicable terms before redistributing third-party source or binaries.
 
 ## Safety and scope
 
-Only configure endpoints and networks you own or are authorized to use. Hydra Tunnel is a client application; it does not provide VPN servers or network access by itself.
+Only configure networks and endpoints you own or are authorized to use. Hydra does not provide VPN servers or network access by itself.

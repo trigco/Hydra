@@ -41,10 +41,9 @@ jobs:
           git -C native/slipstream submodule update --init --recursive
 
       - name: Build OpenSSL for Android arm64
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
         run: |
           set -euxo pipefail
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
           git clone --depth 1 --branch openssl-3.3.2 https://github.com/openssl/openssl.git native/openssl
           cd native/openssl
           export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"

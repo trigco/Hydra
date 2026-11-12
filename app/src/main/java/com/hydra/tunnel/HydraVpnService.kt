@@ -14,9 +14,10 @@ import android.os.IBinder
  */
 class HydraVpnService : VpnService() {
 
-    override fun onBind(intent: Intent?): IBinder? = super.onBind(intent)
+    override fun onBind(intent: Intent): IBinder? = super.onBind(intent)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        ConnectionCoordinator.reset()
         ConnectionCoordinator.transition(ConnectionState.Failed(
             "VPN transport is not ready. No TUN interface was created."
         ))
@@ -29,8 +30,4 @@ class HydraVpnService : VpnService() {
         super.onRevoke()
     }
 
-    override fun onDestroy() {
-        ConnectionCoordinator.reset()
-        super.onDestroy()
-    }
 }

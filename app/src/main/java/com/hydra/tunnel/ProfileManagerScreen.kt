@@ -39,7 +39,7 @@ private val ProfileMuted = androidx.compose.ui.graphics.Color(0xFF91A2B8)
 private val ProfileSurface = androidx.compose.ui.graphics.Color(0xFF111A27)
 
 @Composable
-fun ProfileManagerScreen(store: ProfileStore) {
+fun ProfileManagerScreen(store: ProfileStore, onProfileSelectionChanged: (HydraProfile?) -> Unit = {}) {
     val context = LocalContext.current
     val profiles = remember { mutableStateListOf<HydraProfile>().apply { addAll(store.load()) } }
     var selectedId by remember { mutableStateOf(store.selectedProfileId()) }
@@ -122,6 +122,9 @@ fun ProfileManagerScreen(store: ProfileStore) {
                         if (selectedId == null) {
                             selectedId = updated.id
                             store.selectProfile(selectedId)
+                            onProfileSelectionChanged(updated)
+                        } else if (selectedId == updated.id) {
+                            onProfileSelectionChanged(updated)
                         }
                         status = if (creating) "Profile created." else "Profile updated."
                         editing = null
@@ -153,6 +156,7 @@ fun ProfileManagerScreen(store: ProfileStore) {
                             TextButton(onClick = {
                                 selectedId = profile.id
                                 store.selectProfile(profile.id)
+                                onProfileSelectionChanged(profile)
                                 status = "Selected ${profile.name}."
                             }) { Text("Select") }
                             TextButton(onClick = {
@@ -167,6 +171,7 @@ fun ProfileManagerScreen(store: ProfileStore) {
                                     if (selectedId == profile.id) {
                                         selectedId = next.firstOrNull()?.id
                                         store.selectProfile(selectedId)
+                                        onProfileSelectionChanged(next.firstOrNull())
                                     }
                                     status = "Profile deleted."
                                 }.onFailure { status = it.message ?: "Could not delete profile." }

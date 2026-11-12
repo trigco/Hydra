@@ -69,6 +69,9 @@ private fun HydraApp() {
     val context = LocalContext.current
     val profileStore = remember(context) { ProfileStore(context) }
     var selectedTab by remember { mutableStateOf(AppTab.HOME) }
+    var activeProfile by remember {
+        mutableStateOf(profileStore.load().firstOrNull { it.id == profileStore.selectedProfileId() })
+    }
     MaterialTheme(
         colorScheme = darkColorScheme(
             primary = HydraBlue,
@@ -107,8 +110,13 @@ private fun HydraApp() {
                 Header()
                 Spacer(Modifier.height(24.dp))
                 when (selectedTab) {
-                    AppTab.HOME -> HomeScreen(onOpenConfigs = { selectedTab = AppTab.CONFIGS })
-                    AppTab.CONFIGS -> ProfileManagerScreen(profileStore)
+                    AppTab.HOME -> HomeScreen(
+                        activeProfile = activeProfile,
+                        onOpenConfigs = { selectedTab = AppTab.CONFIGS }
+                    )
+                    AppTab.CONFIGS -> ProfileManagerScreen(profileStore) { selected ->
+                        activeProfile = selected
+                    }
                     AppTab.SETTINGS -> SettingsScreen()
                 }
             }
@@ -137,7 +145,7 @@ private fun Header() {
 }
 
 @Composable
-private fun HomeScreen(onOpenConfigs: () -> Unit) {
+private fun HomeScreen(activeProfile: HydraProfile?, onOpenConfigs: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("YOUR CONNECTION", color = HydraMuted, fontSize = 11.sp, letterSpacing = 1.4.sp)
         Card(
@@ -171,7 +179,10 @@ private fun HomeScreen(onOpenConfigs: () -> Unit) {
             Column(Modifier.padding(16.dp)) {
                 Text("ACTIVE CONFIGURATION", color = HydraMuted, fontSize = 10.sp)
                 Spacer(Modifier.height(6.dp))
-                Text("No configuration selected", fontWeight = FontWeight.Medium)
+                Text(activeProfile?.name ?: "No configuration selected", fontWeight = FontWeight.Medium)
+                if (activeProfile != null) {
+                    Text(activeProfile.domain, color = HydraMuted, fontSize = 11.sp)
+                }
             }
         }
     }

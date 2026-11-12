@@ -2,7 +2,7 @@
 
 Hydra Tunnel is an open-source Android VPN client project focused on a clean user experience, user-managed profiles, and a modular application architecture.
 
-> **Status: early development.** The repository currently contains an Android UI/build scaffold and local profile management (create, edit, select, delete, and JSON import/export). A working VPN connection, packet-forwarding data plane, DNS subsystem, and MTU application have not been implemented.
+> **Status: early development.** The repository includes the Android UI, local profile management, selected-profile synchronization, a connection-state coordinator, an Android VPN permission request flow, a registered VpnService lifecycle boundary, basic readiness diagnostics, and unit tests. A working VPN connection, verified transport engine, packet-forwarding data plane, DNS subsystem, and MTU application have not been implemented. The app deliberately does not create a TUN interface or claim Connected state without a tested data plane.
 
 ## Project goals
 
@@ -14,9 +14,9 @@ Hydra Tunnel is an open-source Android VPN client project focused on a clean use
 
 ## Planned app navigation
 
-- **Home** — connection state, traffic counters, and connection controls.
+- **Home** — connection state, selected profile, permission request, and traffic placeholders (live counters require a transport provider).
 - **Configs** — create, edit, import, export, select, and delete local profiles; profiles are stored on-device.
-- **Settings** — appearance, diagnostics, and app preferences.
+- **Settings** — app preferences and VPN/transport readiness diagnostics.
 
 There will be no built-in public server directory. Users manage their own profiles and endpoints.
 

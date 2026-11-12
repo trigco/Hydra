@@ -12,7 +12,7 @@ data class SlipstreamLaunchSpec(
     val resolvers: List<String>,
     val tcpListenPort: Int,
     val congestionControl: String = "dcubic",
-    val keepAliveIntervalSeconds: Int = 400,
+    val keepAliveInterval: Int = 400,
     val enableGso: Boolean = false
 ) {
     fun validate(): String? {
@@ -21,7 +21,7 @@ data class SlipstreamLaunchSpec(
         if (resolvers.isEmpty()) return "At least one resolver is required."
         if (tcpListenPort !in 1..65535) return "Local TCP listen port is invalid."
         if (congestionControl !in setOf("bbr", "dcubic")) return "Unsupported congestion-control algorithm."
-        if (keepAliveIntervalSeconds !in 0..3600) return "Keep-alive interval must be 0–3600 seconds."
+        if (keepAliveIntervalSeconds !in 0..3600) return "Keep-alive interval must be 0–3600."
         return null
     }
 

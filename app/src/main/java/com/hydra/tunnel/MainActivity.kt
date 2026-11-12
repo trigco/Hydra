@@ -1,8 +1,13 @@
 package com.hydra.tunnel
 
 import android.os.Bundle
+import android.content.Intent
+import android.net.VpnService
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,6 +78,24 @@ private fun HydraApp() {
     var activeProfile by remember {
         mutableStateOf(profileStore.load().firstOrNull { it.id == profileStore.selectedProfileId() })
     }
+    val vpnPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val message = if (result.resultCode == android.app.Activity.RESULT_OK) {
+            "VPN permission granted. Transport engine is not integrated yet."
+        } else {
+            "VPN permission was not granted."
+        }
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+    val requestVpnPermission = {
+        val prepareIntent = VpnService.prepare(context)
+        if (prepareIntent == null) {
+            Toast.makeText(context, "VPN permission is already granted. Engine is not ready.", Toast.LENGTH_LONG).show()
+        } else {
+            vpnPermissionLauncher.launch(prepareIntent)
+        }
+    }
     MaterialTheme(
         colorScheme = darkColorScheme(
             primary = HydraBlue,
@@ -113,7 +136,8 @@ private fun HydraApp() {
                 when (selectedTab) {
                     AppTab.HOME -> HomeScreen(
                         activeProfile = activeProfile,
-                        onOpenConfigs = { selectedTab = AppTab.CONFIGS }
+                        onOpenConfigs = { selectedTab = AppTab.CONFIGS },
+                        onRequestVpnPermission = requestVpnPermission
                     )
                     AppTab.CONFIGS -> ProfileManagerScreen(profileStore) { selected ->
                         activeProfile = selected
@@ -146,7 +170,11 @@ private fun Header() {
 }
 
 @Composable
-private fun HomeScreen(activeProfile: HydraProfile?, onOpenConfigs: () -> Unit) {
+private fun HomeScreen(
+    activeProfile: HydraProfile?,
+    onOpenConfigs: () -> Unit,
+    onRequestVpnPermission: () -> Unit
+) {
     val connectionState by ConnectionCoordinator.state.collectAsState()
     val traffic by ConnectionCoordinator.traffic.collectAsState()
     val stateLabel = when (val state = connectionState) {
@@ -185,6 +213,12 @@ private fun HomeScreen(activeProfile: HydraProfile?, onOpenConfigs: () -> Unit) 
                 Spacer(Modifier.height(18.dp))
                 Button(onClick = onOpenConfigs, modifier = Modifier.fillMaxWidth()) {
                     Text("Open configurations")
+                }
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onRequestVpnPermission,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Grant Android VPN permission")
                 }
                 Text("Connect is disabled until the transport and packet-forwarding components pass compatibility and safety checks.",
                     color = HydraMuted, fontSize = 10.sp)

@@ -45,6 +45,12 @@ object ConnectionCoordinator {
         }
     }
 
+    @Synchronized
+    fun reset() {
+        mutableState.value = ConnectionState.Idle
+        mutableTraffic.value = TrafficSnapshot()
+    }
+
     fun publishTraffic(snapshot: TrafficSnapshot) {
         require(snapshot.receivedBytesPerSecond >= 0L && snapshot.transmittedBytesPerSecond >= 0L)
         require(snapshot.receivedBytesTotal >= 0L && snapshot.transmittedBytesTotal >= 0L)

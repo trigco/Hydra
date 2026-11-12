@@ -29,17 +29,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -198,50 +194,6 @@ private fun MetricCard(label: String, value: String, modifier: Modifier = Modifi
             Spacer(Modifier.height(8.dp))
             Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
-    }
-}
-
-@Composable
-private fun ConfigsScreen() {
-    var configName by remember { mutableStateOf("My Slipstream") }
-    var domain by remember { mutableStateOf("") }
-    var resolverOne by remember { mutableStateOf("1.1.1.1:53") }
-    var resolverTwo by remember { mutableStateOf("8.8.8.8:53") }
-    var resolverThree by remember { mutableStateOf("9.9.9.9:53") }
-    var listenPort by remember { mutableStateOf("5201") }
-    var mtu by remember { mutableFloatStateOf(1280f) }
-    var workers by remember { mutableIntStateOf(4) }
-    var aggressiveDns by remember { mutableStateOf(true) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("SLIPSTREAM CONFIGURATION", color = HydraMuted, fontSize = 11.sp, letterSpacing = 1.2.sp)
-        OutlinedTextField(configName, { configName = it }, label = { Text("Configuration name") },
-            modifier = Modifier.fillMaxWidth(), singleLine = true)
-        OutlinedTextField(domain, { domain = it }, label = { Text("Tunnel domain") },
-            modifier = Modifier.fillMaxWidth(), singleLine = true)
-        OutlinedTextField(listenPort, { listenPort = it }, label = { Text("Local TCP listen port") },
-            modifier = Modifier.fillMaxWidth(), singleLine = true)
-        Text("DNS RESOLVERS", color = HydraMuted, fontSize = 11.sp, letterSpacing = 1.2.sp)
-        OutlinedTextField(resolverOne, { resolverOne = it }, label = { Text("Resolver 1") },
-            modifier = Modifier.fillMaxWidth(), singleLine = true)
-        OutlinedTextField(resolverTwo, { resolverTwo = it }, label = { Text("Resolver 2") },
-            modifier = Modifier.fillMaxWidth(), singleLine = true)
-        OutlinedTextField(resolverThree, { resolverThree = it }, label = { Text("Resolver 3") },
-            modifier = Modifier.fillMaxWidth(), singleLine = true)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("Aggressive DNS racing", fontWeight = FontWeight.Medium)
-                Text("Race enabled resolvers; accept first valid response", color = HydraMuted, fontSize = 11.sp)
-            }
-            Switch(checked = aggressiveDns, onCheckedChange = { aggressiveDns = it })
-        }
-        Text("DNS workers: ${workers}", fontWeight = FontWeight.Medium)
-        Slider(value = workers.toFloat(), onValueChange = { workers = it.toInt() },
-            valueRange = 1f..8f, steps = 6)
-        Text("TUN MTU: ${mtu.toInt()}", fontWeight = FontWeight.Medium)
-        Slider(value = mtu, onValueChange = { mtu = it }, valueRange = 1280f..1500f)
-        Text("These fields are a UI scaffold only. Validation, persistence, and engine wiring are not implemented yet.",
-            color = HydraMuted, fontSize = 11.sp)
     }
 }
 

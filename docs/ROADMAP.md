@@ -26,7 +26,10 @@
 
 ## Phase 3 — Transport compatibility review
 - [x] Select EndPositive/slipstream as preferred source-evaluation candidate
-- [ ] Review exact upstream revision, build requirements, and submodule licenses
+- [x] Review upstream CLI arguments, Meson build graph, submodules, and Apache-2.0 license
+- [x] Add typed Kotlin launch specification and argument-vector tests
+- [ ] Pin exact upstream commit and build Android ABI artifacts in reproducible CI
+- [ ] Integrate and test native process lifecycle and local TCP listener readiness
 - [ ] Determine whether a supported Android NDK build is feasible
 - [ ] Document ABI, native interface, and maintenance requirements
 - [ ] Do not integrate or redistribute until compatibility and license reviews pass

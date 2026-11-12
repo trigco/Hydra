@@ -13,8 +13,8 @@
 - [x] Build initial Material 3 navigation: Home, Configs, Settings
 - [ ] Add dark and AMOLED appearance options
 - [ ] Add ViewModel + StateFlow UI state
-- [ ] Add profile model, validation, and local persistence
-- [ ] Add import/export with strict input validation
+- [x] Add profile model, validation, and local persistence
+- [x] Add JSON import/export with strict size, version, and profile validation
 - [ ] Add unit and UI tests for profile management
 
 ## Phase 2 — Android VPN foundation

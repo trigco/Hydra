@@ -5,8 +5,8 @@ import java.util.UUID
 
 data class HydraProfile(
     val id: String = UUID.randomUUID().toString(),
-    val name: String = "My profile",
-    val domain: String = "",
+    val name: String = "Slipstream VPS",
+    val domain: String = "m.mominul.pro",
     val listenPort: Int = 5201,
     val resolvers: List<String> = listOf("1.1.1.1:53", "8.8.8.8:53", "9.9.9.9:53"),
     val aggressiveDns: Boolean = false,

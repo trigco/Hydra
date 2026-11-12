@@ -44,7 +44,7 @@ Hydra Tunnel builds on the work in [Mygod/slipstream-rust](https://github.com/My
 
 ## Open source and licensing
 
-This repository is public, but public visibility alone does not grant permission to reuse, modify, or redistribute its code. A project license still needs to be selected and added. Until then, all rights are reserved by default. Please open an issue or discussion before assuming a reuse license.
+Hydra-authored project code is licensed under the GNU General Public License v3.0; see [COPYING](COPYING). Slipstream Rust and third-party dependencies retain their own licenses and notices. The upstream Slipstream Rust repository is licensed under Apache-2.0; review its terms and preserve required notices before redistributing upstream code or binaries.
 
 ## Safety and scope
 

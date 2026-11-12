@@ -38,8 +38,7 @@ data class HydraProfile(
         private val HOST = Regex("^(?=.{1,253}$)([A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(\\.([A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*$")
         private val IPV4 = Regex("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")
 
-        private fun isValidHost(value: String): Boolean =
-            value.length <= 253 && HOST.matches(value)
+        private fun isValidHost(value: String): Boolean = value.length <= 253 && HOST.matches(value)
 
         private fun isValidResolver(value: String): Boolean {
             val input = value.trim()
@@ -63,10 +62,10 @@ data class HydraProfile(
                     host = input
                     port = null
                 }
-                val validHost = HOST.matches(host) || (IPV4.matches(host) && host.split('.').all { it.toIntOrNull() in 0..255 })
+                val validHost = HOST.matches(host) || (IPV4.matches(host) && host.split('.').all { (it.toIntOrNull() ?: 999) in 0..255 })
                 if (!validHost) return false
             }
-            return port == null || (port.toIntOrNull() in 1..65535)
+            return if (port == null) true else (port.toIntOrNull()?.let { it in 1..65535 } ?: false)
         }
 
         fun fromJson(json: JSONObject): HydraProfile {

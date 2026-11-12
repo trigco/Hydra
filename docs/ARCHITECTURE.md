@@ -1,11 +1,10 @@
-# Hydra Tunnel — Initial Architecture
+# Hydra Tunnel — Android Architecture
 
 ## 1. Product model
 
-Hydra Tunnel is a user-configured Android VPN client. It does not ship with a server list. A user creates or imports one or more local configurations and chooses which one to activate.
+Hydra Tunnel is a user-configured Android VPN client. It does not ship with a public server directory. Users manage their own local profiles and only connect to networks and endpoints they are authorized to use.
 
 Navigation:
-
 - Home
 - Configs
 - Settings
@@ -17,102 +16,69 @@ Jetpack Compose UI
        |
 ViewModels / StateFlow
        |
-Configuration + Connection Coordinator
+Profile Repository + Connection Coordinator
        |
 Android VpnService
        |
-TUN interface <----> Packet Forwarding Layer
-                         |
-                  Slipstream Adapter
-                         |
-                  Slipstream Rust client
-
-DNS subsystem:
-DNS requests -> bounded worker queue -> resolver race/selection
-             -> response validation -> cache -> DNS routing
+TUN interface
+       |
+Packet Forwarding Interface
+       |
+Approved, independently reviewed transport provider
 ```
 
-This is a target architecture, not a claim that the components are already implemented.
+This is a target architecture, not a claim that these components are implemented.
 
-## 3. Slipstream integration boundary
+## 3. Android VPN lifecycle
 
-The upstream Slipstream Rust client exposes a TCP listener and has its own DNS/resolver behavior. An Android TUN interface carries IP packets. These are different interfaces and cannot be connected by simply forwarding raw TUN packets to the Slipstream TCP listener.
+The Android layer is responsible for:
+- Requesting and handling VPN permission.
+- Starting a foreground service with a clear user-visible notification.
+- Building and closing the TUN interface.
+- Handling user stop, permission revocation, process death, and network changes.
+- Reporting connection state without blocking the main thread.
+- Releasing file descriptors, sockets, and worker resources deterministically.
 
-Before implementing the bridge, inspect the exact upstream client interfaces and supported operating modes. The adapter must define how TCP and UDP flows are handled, how DNS is routed, how sockets are protected from VPN routing loops, and how shutdown/cancellation works.
+The connection coordinator should expose explicit states such as Idle, Preparing, Connecting, Connected, Reconnecting, Stopping, and Failed. Invalid transitions must be rejected and surfaced as actionable errors.
 
-Do not claim full-device VPN support until the TUN-to-engine forwarding path has been implemented and tested.
+## 4. Packet forwarding boundary
 
-## 4. DNS subsystem
+A TUN interface provides IP packets. A transport provider may expose a different interface. These interfaces must not be treated as interchangeable.
 
-### Resolver configuration
+Any future packet-forwarding component must have a documented contract for packet ownership, supported protocols, backpressure, cancellation, errors, and shutdown. Do not claim full-device VPN support until packet forwarding is implemented and verified with packet-level tests on physical devices.
 
-Each resolver entry should contain:
-- Stable identifier and display name
-- Transport and endpoint (for example, UDP/TCP DNS or an explicitly supported encrypted DNS transport)
-- Enabled state
-- Optional timeout override
-- Last observed latency and health state (runtime-only)
+## 5. DNS and network configuration
 
-### Aggressive DNS mode
+DNS behavior must be explicit and documented. The app must not claim leak protection based only on a configured resolver address. Any DNS policy requires tests for IPv4, IPv6, reconnects, network changes, resolver failure, and VPN permission revocation.
 
-Proposed behavior:
-1. Accept a DNS request and apply per-client/request deduplication where safe.
-2. Send the same request concurrently to a bounded set of enabled resolvers.
-3. Accept the first response that passes transaction-ID, question, format, and configured validation checks.
-4. Return the accepted response and cancel outstanding work.
-5. Update resolver health/latency observations.
-6. Cache only responses permitted by the cache policy and their TTL.
+Do not add parallel resolver requests or aggressive retry behavior without a bounded resource policy, a clear user benefit, and tests for query amplification and failure handling.
 
-Important safeguards:
-- A bounded worker pool and bounded queue; no unbounded task or thread creation.
-- Per-resolver and global concurrency limits.
-- Short, configurable deadlines and bounded retries.
-- Cancellation of losing requests.
-- Do not treat a malformed packet, timeout, SERVFAIL, or mismatched question as a winning answer.
-- Consider DNSSEC and resolver trust policy; racing does not itself make DNS answers trustworthy.
-- Avoid caching failures as successful answers.
-- Avoid sending queries to disabled or untrusted resolvers.
+## 6. MTU
 
-The initial design should support three policies:
-- **Primary / fallback**
-- **Fastest healthy resolver**
-- **Aggressive race** (parallel requests; first acceptable response wins)
+MTU belongs to the Android TUN interface and must be coordinated with the actual forwarding path. Manual values require validation. Automatic MTU selection should only be added after a reliable path-MTU strategy exists.
 
-Aggressive racing increases upstream query volume. It must remain opt-in and bounded.
+Do not silently apply a value that the underlying path cannot carry. Test large packets, fragmentation, IPv4/IPv6 behavior, and path changes.
 
-### DNS routing and leak prevention
+## 7. Performance principles
 
-The Android VPN routing policy must be explicit. DNS requests must use the intended route and avoid recursive routing through the VPN itself. Use Android's VPN socket-protection mechanisms where appropriate. Test IPv4, IPv6, split routing, reconnect, and failure cases. Do not claim leak protection until packet-level tests verify it.
-
-## 5. MTU
-
-MTU belongs to the Android TUN interface and must be coordinated with the actual forwarding/tunnel path. Provide:
-- Auto mode only after a reliable path-MTU strategy exists.
-- Manual mode with platform-appropriate validation.
-- Clear handling of IPv4/IPv6 minimum requirements.
-- Tests for fragmentation, large packets, and path changes.
-
-Do not silently apply a value that the underlying path cannot carry.
-
-## 6. Performance principles
-
-- Keep UI work off network/engine threads and engine work off the main thread.
+- Keep UI work off network and native threads.
 - Use bounded queues and backpressure.
-- Prefer asynchronous tasks over creating one OS thread per DNS worker.
-- Reuse packet buffers where safe and avoid avoidable per-packet allocations.
-- Sample UI traffic statistics at a modest interval rather than polling continuously.
-- Batch or buffer diagnostic writes; make verbose logging opt-in.
-- Cancel all workers and close native resources deterministically.
+- Avoid one operating-system thread per connection or packet.
+- Reuse buffers where safe and avoid unnecessary per-packet allocations.
+- Sample UI traffic statistics at a modest interval.
+- Batch diagnostic writes and keep verbose logging opt-in.
+- Cancel workers and close native resources deterministically.
 - Profile CPU, memory, battery, and thermal behavior on physical devices, including lower-end hardware.
 
-## 7. Security and configuration handling
+## 8. Security and configuration handling
 
-- Do not store private keys, credentials, or sensitive endpoint tokens in logs.
-- Validate imported configuration data and enforce size limits.
+- Do not store credentials or private keys in logs.
+- Validate imported profile data and enforce file and field size limits.
 - Never execute arbitrary commands from imported configuration files.
-- Keep upstream license notices intact.
-- Review the upstream Slipstream license and all dependency licenses before vendoring or redistributing binaries.
+- Keep third-party license and copyright notices intact.
+- Review native dependencies and their licenses before redistribution.
+- Do not expose secrets in crash reports or diagnostic exports.
 
-## 8. Current implementation status
+## 9. Current implementation status
 
-This document records the intended design. It does not imply that the VPN bridge, DNS engine, resolver racing, or MTU application is implemented.
+The repository currently contains an early Android UI/build scaffold and documentation. The VPN service, TUN packet forwarding, transport provider, profile persistence, DNS policy, and MTU application are not implemented.

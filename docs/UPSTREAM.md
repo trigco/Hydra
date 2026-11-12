@@ -4,7 +4,7 @@
 
 **Preferred upstream for technical evaluation:** [EndPositive/slipstream](https://github.com/EndPositive/slipstream).
 
-This is the original Slipstream project, not the archived Rust rewrite. Its repository contains C and C++ source files, uses Meson/Ninja for builds, and includes PicoQUIC as a Git submodule. The project describes itself as a high-performance DNS channel using QUIC multipath, adaptive congestion control, and parallel routing across resolvers.
+This is the original Slipstream project, not the archived Rust rewrite. Its repository contains C and C++ source files, uses Meson/Ninja for builds, and includes PicoQUIC as a Git submodule. The project describes itself as a high-performance DNS tunnel using QUIC multipath, adaptive congestion control, and parallel routing across resolvers. The upstream README explicitly describes it as a covert channel, so Hydra treats it as a user-operated transport only for domains, resolvers, and servers the operator owns or is authorized to use.
 
 Repository evidence reviewed on 2026-11-12:
 - Source tree: https://github.com/EndPositive/slipstream
@@ -17,9 +17,9 @@ Recent upstream commits visible at review time included server-side nonblocking 
 
 ## Android integration status
 
-No engine has been integrated into Hydra. Android NDK compatibility has **not** been established.
+No engine binary or upstream source has been integrated into Hydra. Android NDK compatibility has **not** been established. A typed Kotlin launch-argument contract has been added, but it is not a process runner and cannot start a tunnel.
 
-Before any future native integration, an independent review would need to establish:
+Before native integration, an independent review and reproducible build must establish:
 - Supported Android ABIs and toolchain requirements.
 - Whether the upstream build and all submodules can be built reproducibly with the Android NDK.
 - Native dependency and license compatibility.
@@ -28,6 +28,10 @@ Before any future native integration, an independent review would need to establ
 - Independent security and performance review.
 
 Hydra must not treat a desktop/Linux binary as an Android-ready library. No upstream source or binary has been copied into this repository.
+
+## Confirmed upstream client interface
+
+The current upstream client CLI accepts `--tcp-listen-port`, one or more `--resolver` values, `--domain`, `--congestion-control` (`bbr` or `dcubic`), `--gso`, and `--keep-alive-interval`. The client exposes a local TCP listener; it is not itself an Android TUN packet forwarder. Hydra must therefore provide and test a separate packet-to-stream bridge before full-device VPN routing can be enabled. The current upstream `meson.build` builds separate `slipstream-client` and `slipstream-server` executables and pulls Picoquic through a CMake subproject. Its `.gitmodules` also lists SPCDNS, lua-resty-base-encoding, and quick_arg_parser.
 
 ## Android architecture reference
 
@@ -52,4 +56,4 @@ Do not copy its implementation without a separate code, dependency, and license 
 
 ## Decision
 
-EndPositive's original project is the preferred candidate for a **source and compatibility evaluation only**. This is not approval to deploy a DNS covert tunnel or a claim that an Android integration exists. A general-purpose Android VPN foundation can be developed independently of that decision.
+EndPositive's original project is the preferred candidate for a **source and compatibility evaluation only**. This is not a claim that an Android integration exists. Use only operator-owned or explicitly authorized domains, resolvers, and server infrastructure. A general-purpose Android VPN foundation can be developed independently of that decision.

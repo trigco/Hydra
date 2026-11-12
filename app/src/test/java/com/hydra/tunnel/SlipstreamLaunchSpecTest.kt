@@ -26,6 +26,7 @@ class SlipstreamLaunchSpecTest {
         assertTrue(argv.contains("--domain"))
         assertTrue(argv.contains("tunnel.example.com"))
         assertEquals(2, argv.count { it == "--resolver" })
+        assertTrue(argv.contains("400"))
     }
 
     @Test
@@ -41,6 +42,22 @@ class SlipstreamLaunchSpecTest {
         assertEquals(
             "Slipstream executable is not packaged.",
             validSpec().copy(executablePath = "").validate()
+        )
+    }
+
+    @Test
+    fun rejectsBlankResolver() {
+        assertEquals(
+            "Resolver values must not be blank.",
+            validSpec().copy(resolvers = listOf("1.1.1.1:53", " ")).validate()
+        )
+    }
+
+    @Test
+    fun rejectsInvalidKeepAliveRange() {
+        assertEquals(
+            "Keep-alive interval must be 0–3600.",
+            validSpec().copy(keepAliveInterval = 3601).validate()
         )
     }
 }

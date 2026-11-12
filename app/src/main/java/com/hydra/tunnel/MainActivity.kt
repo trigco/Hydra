@@ -35,6 +35,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -146,6 +147,24 @@ private fun Header() {
 
 @Composable
 private fun HomeScreen(activeProfile: HydraProfile?, onOpenConfigs: () -> Unit) {
+    val connectionState by ConnectionCoordinator.state.collectAsState()
+    val traffic by ConnectionCoordinator.traffic.collectAsState()
+    val stateLabel = when (val state = connectionState) {
+        ConnectionState.Idle -> "Engine unavailable"
+        ConnectionState.Preparing -> "Preparing VPN permission"
+        ConnectionState.Connecting -> "Connecting"
+        ConnectionState.Connected -> "Connected"
+        ConnectionState.Stopping -> "Disconnecting"
+        is ConnectionState.Failed -> "Connection unavailable"
+    }
+    val stateDetail = when (val state = connectionState) {
+        is ConnectionState.Failed -> state.reason
+        ConnectionState.Idle -> "A verified transport engine and packet bridge are not integrated yet."
+        ConnectionState.Preparing -> "Waiting for Android VPN authorization."
+        ConnectionState.Connecting -> "Transport startup is in progress."
+        ConnectionState.Connected -> "Traffic counters are supplied by the active transport."
+        ConnectionState.Stopping -> "Releasing VPN resources."
+    }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("YOUR CONNECTION", color = HydraMuted, fontSize = 11.sp, letterSpacing = 1.4.sp)
         Card(
@@ -161,19 +180,19 @@ private fun HomeScreen(activeProfile: HydraProfile?, onOpenConfigs: () -> Unit) 
                     BoxCenter { Text("◇", color = HydraBlue, fontSize = 54.sp) }
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("Engine not connected", fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
-                Text("Slipstream integration is under development", color = HydraMuted, fontSize = 12.sp)
+                Text(stateLabel, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                Text(stateDetail, color = HydraMuted, fontSize = 12.sp)
                 Spacer(Modifier.height(18.dp))
                 Button(onClick = onOpenConfigs, modifier = Modifier.fillMaxWidth()) {
                     Text("Open configurations")
                 }
-                Text("Connection is disabled until the VPN engine and TUN bridge are implemented.",
+                Text("Connect is disabled until the transport and packet-forwarding components pass compatibility and safety checks.",
                     color = HydraMuted, fontSize = 10.sp)
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            MetricCard("DOWNLOAD", "—", Modifier.weight(1f))
-            MetricCard("UPLOAD", "—", Modifier.weight(1f))
+            MetricCard("DOWNLOAD", if (connectionState == ConnectionState.Connected) "${traffic.receivedBytesPerSecond} B/s" else "—", Modifier.weight(1f))
+            MetricCard("UPLOAD", if (connectionState == ConnectionState.Connected) "${traffic.transmittedBytesPerSecond} B/s" else "—", Modifier.weight(1f))
         }
         Card(colors = CardDefaults.cardColors(containerColor = HydraSurface)) {
             Column(Modifier.padding(16.dp)) {

@@ -25,17 +25,12 @@ class HydraVpnService : VpnService() {
     }
 
     override fun onRevoke() {
-        if (ConnectionCoordinator.state.value !is ConnectionState.Idle) {
-            ConnectionCoordinator.transition(ConnectionState.Stopping)
-            ConnectionCoordinator.transition(ConnectionState.Idle)
-        }
+        ConnectionCoordinator.reset()
         super.onRevoke()
     }
 
     override fun onDestroy() {
-        if (ConnectionCoordinator.state.value !is ConnectionState.Idle) {
-            ConnectionCoordinator.transition(ConnectionState.Idle)
-        }
+        ConnectionCoordinator.reset()
         super.onDestroy()
     }
 }

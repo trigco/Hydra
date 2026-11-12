@@ -29,8 +29,11 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install Android NDK
+      - name: Install Android command-line tools
         uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools"
+
       - name: Install pinned NDK
         run: sdkmanager "ndk;27.2.12479018"
 
@@ -56,6 +59,7 @@ jobs:
           set -euxo pipefail
           NDK="$ANDROID_HOME/ndk/27.2.12479018"
           TOOLCHAIN="$NDK/build/cmake/android.toolchain.cmake"
+          mkdir -p "$GITHUB_WORKSPACE/native"
           cat > "$GITHUB_WORKSPACE/native/android-arm64-toolchain.cmake" <<EOF
           set(CMAKE_SYSTEM_NAME Android)
           set(CMAKE_SYSTEM_VERSION 23)
@@ -64,7 +68,6 @@ jobs:
           set(CMAKE_ANDROID_STL_TYPE c++_shared)
           include("$TOOLCHAIN")
           EOF
-          mkdir -p "$GITHUB_WORKSPACE/native"
           cat > "$GITHUB_WORKSPACE/native/arm64.ini" <<EOF
           [binaries]
           c = '$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang'

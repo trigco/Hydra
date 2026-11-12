@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -100,7 +102,8 @@ private fun HydraApp() {
         ) { padding ->
             Column(
                 modifier = Modifier.fillMaxSize().background(HydraBackground)
-                    .padding(padding).padding(horizontal = 20.dp, vertical = 16.dp)
+                    .padding(padding).verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
             ) {
                 Header()
                 Spacer(Modifier.height(24.dp))

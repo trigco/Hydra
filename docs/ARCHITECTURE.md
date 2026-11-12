@@ -45,7 +45,7 @@ The connection coordinator should expose explicit states such as Idle, Preparing
 
 A TUN interface provides IP packets. A transport provider may expose a different interface. These interfaces must not be treated as interchangeable.
 
-Any future packet-forwarding component must have a documented contract for packet ownership, supported protocols, backpressure, cancellation, errors, and shutdown. Do not claim full-device VPN support until packet forwarding is implemented and verified with packet-level tests on physical devices.
+The current HydraVpnService is only a lifecycle boundary. It must not be used to start a tunnel yet. Any future packet-forwarding component must have a documented contract for packet ownership, supported protocols, backpressure, cancellation, errors, and shutdown. Do not claim full-device VPN support until packet forwarding is implemented and verified with packet-level tests on physical devices.
 
 ## 5. DNS and network configuration
 
@@ -81,4 +81,4 @@ Do not silently apply a value that the underlying path cannot carry. Test large 
 
 ## 9. Current implementation status
 
-The repository currently contains an early Android UI/build scaffold and documentation. The VPN service, TUN packet forwarding, transport provider, profile persistence, DNS policy, and MTU application are not implemented.
+The repository now includes local profile persistence/import/export, Home-to-Configs selected-profile synchronization, a connection-state coordinator, and a registered Android VpnService lifecycle boundary. The service deliberately does not establish a TUN interface because no verified transport provider or packet bridge is integrated. Traffic models are present, but no live traffic counters are published. DNS policy, resolver execution, and MTU application remain unimplemented.

@@ -47,9 +47,16 @@ jobs:
         run: |
           set -euxo pipefail
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
+          export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
           git clone --depth 1 --branch openssl-3.3.2 https://github.com/openssl/openssl.git native/openssl
           cd native/openssl
           export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
+          # NDK 27 ships LLVM clang only (no legacy *-gcc wrappers). OpenSSL's
+          # Configure otherwise looks for aarch64-linux-android-gcc and fails
+          # with "no NDK aarch64-linux-android-gcc on $PATH" — pin CC/CXX to
+          # the API-suffixed clang binaries explicitly.
+          export CC=aarch64-linux-android23-clang
+          export CXX=aarch64-linux-android23-clang++
           ./Configure android-arm64 -D__ANDROID_API__=23 no-shared no-tests --prefix="$GITHUB_WORKSPACE/native/openssl-install"
           make -j"$(nproc)"
           make install_sw

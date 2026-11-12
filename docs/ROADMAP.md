@@ -15,14 +15,14 @@
 - [x] Add connection StateFlow coordinator (profile screen state remains local Compose state)
 - [x] Add profile model, validation, and local persistence
 - [x] Add JSON import/export with strict size, version, and profile validation
-- [ ] Add unit and UI tests for profile management
+- [x] Add unit tests for profile validation and connection lifecycle (UI tests remain pending)
 
 ## Phase 2 — Android VPN foundation
 - [x] Register Android VpnService lifecycle boundary (TUN creation intentionally disabled until transport is ready)
 - [ ] Define TUN packet ownership and forwarding interfaces
 - [ ] Add deterministic start, stop, cancellation, and cleanup state machine
 - [ ] Prevent routing loops for app-owned sockets
-- [ ] Add permission-denied, revoked, process-death, and network-change tests
+- [ ] Add permission-denied, revoked, process-death, and network-change instrumentation tests
 
 ## Phase 3 — Transport compatibility review
 - [x] Select EndPositive/slipstream as preferred source-evaluation candidate
@@ -32,7 +32,7 @@
 - [ ] Do not integrate or redistribute until compatibility and license reviews pass
 
 ## Phase 4 — Diagnostics and quality
-- [ ] Add structured diagnostics with secrets redacted
+- [x] Add basic VPN/transport readiness diagnostics (structured redacted logs remain pending)
 - [x] Add explicit connection-state and traffic snapshot models
 - [ ] Profile CPU, RAM, battery, and thermal impact
 - [ ] Test on low-end and current Android devices

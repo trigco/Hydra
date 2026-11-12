@@ -19,9 +19,10 @@ data class SlipstreamLaunchSpec(
         if (executablePath.isBlank()) return "Slipstream executable is not packaged."
         if (domain.isBlank()) return "Tunnel domain is required."
         if (resolvers.isEmpty()) return "At least one resolver is required."
+        if (resolvers.any { it.isBlank() }) return "Resolver values must not be blank."
         if (tcpListenPort !in 1..65535) return "Local TCP listen port is invalid."
         if (congestionControl !in setOf("bbr", "dcubic")) return "Unsupported congestion-control algorithm."
-        if (keepAliveIntervalSeconds !in 0..3600) return "Keep-alive interval must be 0–3600."
+        if (keepAliveInterval !in 0..3600) return "Keep-alive interval must be 0–3600."
         return null
     }
 
@@ -41,7 +42,7 @@ data class SlipstreamLaunchSpec(
         add("--congestion-control")
         add(congestionControl)
         add("--keep-alive-interval")
-        add(keepAliveIntervalSeconds.toString())
+        add(keepAliveInterval.toString())
         if (enableGso) add("--gso")
     }
 }

@@ -74,11 +74,11 @@ jobs:
           set(CMAKE_ANDROID_NDK "$NDK")
           set(CMAKE_ANDROID_STL_TYPE c++_shared)
           include("$TOOLCHAIN")
-          set(OPENSSL_ROOT_DIR "$GITHUB_WORKSPACE/native/openssl-install")
-          set(OPENSSL_USE_STATIC_LIBS TRUE)
-          set(OPENSSL_INCLUDE_DIR "$GITHUB_WORKSPACE/native/openssl-install/include")
-          set(OPENSSL_CRYPTO_LIBRARY "$GITHUB_WORKSPACE/native/openssl-install/lib/libcrypto.a")
-          set(OPENSSL_SSL_LIBRARY "$GITHUB_WORKSPACE/native/openssl-install/lib/libssl.a")
+          set(OPENSSL_ROOT_DIR "$GITHUB_WORKSPACE/native/openssl-install" CACHE PATH "OpenSSL root" FORCE)
+          set(OPENSSL_USE_STATIC_LIBS TRUE CACHE BOOL "Use static OpenSSL libs" FORCE)
+          set(OPENSSL_INCLUDE_DIR "$GITHUB_WORKSPACE/native/openssl-install/include" CACHE PATH "OpenSSL include dir" FORCE)
+          set(OPENSSL_CRYPTO_LIBRARY "$GITHUB_WORKSPACE/native/openssl-install/lib/libcrypto.a" CACHE FILEPATH "OpenSSL crypto library" FORCE)
+          set(OPENSSL_SSL_LIBRARY "$GITHUB_WORKSPACE/native/openssl-install/lib/libssl.a" CACHE FILEPATH "OpenSSL SSL library" FORCE)
           EOF
           cat > "$GITHUB_WORKSPACE/native/arm64.ini" <<EOF
           [binaries]

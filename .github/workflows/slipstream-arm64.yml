@@ -116,6 +116,7 @@ jobs:
           CMAKE_PREFIX_PATH: ${{ github.workspace }}/native/openssl-install
         run: |
           set -euxo pipefail
+          export PATH="$ANDROID_HOME/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
           cd native/slipstream
           meson setup build-arm64 --cross-file "$GITHUB_WORKSPACE/native/arm64.ini" --buildtype=release -Db_lto=true --warnlevel=0 -Ddefault_library=static
           meson compile -C build-arm64
